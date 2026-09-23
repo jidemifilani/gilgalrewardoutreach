@@ -1,0 +1,76 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Viewport overflow check</title>
+<!--
+  Headless Edge renders small --window-size requests at a wider CSS viewport
+  than asked for, so a screenshot at "390px" looks clipped even when nothing
+  overflows. This page measures the real thing instead: it loads each page in
+  a same-origin iframe of an exact width and compares scrollWidth to
+  clientWidth. Any row that says OVERFLOW is a genuine horizontal-scroll bug.
+
+  Open at /gilgalrewardoutreach/tests/viewport-check.html
+-->
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 20px; background: #F4F7F6; color: #13241F; }
+  h1 { font-size: 17px; margin: 0 0 14px; }
+  table { border-collapse: collapse; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  th, td { padding: 7px 12px; border-bottom: 1px solid #e6eceb; text-align: left; font-size: 13px; }
+  th { background: #EAF6F3; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+  .ok { color: #14563F; font-weight: 700; }
+  .bad { color: #A8362A; font-weight: 700; }
+  iframe { position: absolute; left: -10000px; top: 0; height: 900px; border: 0; }
+</style>
+
+<h1>Horizontal overflow check</h1>
+<table id="out">
+  <thead><tr><th>Page</th><th>Width</th><th>scrollWidth</th><th>clientWidth</th><th>Result</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<script>
+(function () {
+  var pages  = ['', 'about', 'outreaches', 'gallery', 'events', 'volunteer', 'contact',
+                'stories', 'support', 'faq', 'search', 'privacy', 'terms',
+                'search?q=reading', 'outreach?slug=back-to-school-osogbo'];
+  var widths = [360, 390, 768];
+  var base   = '/gilgalrewardoutreach/';
+  var body   = document.querySelector('#out tbody');
+  var queue  = [];
+
+  pages.forEach(function (p) {
+    widths.forEach(function (w) { queue.push({ page: p, width: w }); });
+  });
+
+  function next() {
+    var job = queue.shift();
+    if (!job) { document.title = 'done'; return; }
+
+    var frame = document.createElement('iframe');
+    frame.style.width = job.width + 'px';
+    frame.src = base + job.page;
+
+    frame.onload = function () {
+      var doc = frame.contentDocument.documentElement;
+      var sw  = doc.scrollWidth;
+      var cw  = doc.clientWidth;
+      var bad = sw > cw + 1;              // 1px tolerance for sub-pixel rounding
+
+      var row = document.createElement('tr');
+      row.innerHTML =
+        '<td>/' + job.page + '</td>' +
+        '<td>' + job.width + '</td>' +
+        '<td>' + sw + '</td>' +
+        '<td>' + cw + '</td>' +
+        '<td class="' + (bad ? 'bad' : 'ok') + '">' + (bad ? 'OVERFLOW +' + (sw - cw) : 'ok') + '</td>';
+      body.appendChild(row);
+
+      frame.remove();
+      next();
+    };
+
+    document.body.appendChild(frame);
+  }
+
+  next();
+})();
+</script>

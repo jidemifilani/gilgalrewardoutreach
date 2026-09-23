@@ -1,0 +1,15 @@
+# Local credentials — never committed. Copy config.example.php to create it.
+/config/config.php
+
+# Database dumps written by cron/backup-database.php.
+/backups/*
+!/backups/.gitkeep
+
+# Uploaded media is content, not source.
+/assets/uploads/*
+!/assets/uploads/.gitkeep
+
+# Local noise
+*.log
+Thumbs.db
+.DS_Store

@@ -1,0 +1,41 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Mobile preview</title>
+<!-- Renders pages at a true CSS width inside same-origin iframes, because
+     headless Edge widens small --window-size requests. Query: ?w=390&p=volunteer -->
+<style>
+  body { margin: 0; background: #E9EEED; font: 12px system-ui; display: flex; gap: 14px; padding: 14px; }
+  figure { margin: 0; }
+  figcaption { font-weight: 600; margin-bottom: 6px; color: #13241F; }
+  iframe { border: 1px solid #c9d4d2; background: #fff; display: block; }
+</style>
+<div id="out" style="display:flex;gap:14px"></div>
+<script>
+  var q = new URLSearchParams(location.search);
+  var width = parseInt(q.get('w') || '390', 10);
+  var height = parseInt(q.get('h') || '1200', 10);
+  var pages = (q.get('p') || 'volunteer').split(',');
+  var out = document.getElementById('out');
+
+  pages.forEach(function (p) {
+    var fig = document.createElement('figure');
+    fig.innerHTML = '<figcaption>/' + p + ' @ ' + width + 'px</figcaption>';
+    var f = document.createElement('iframe');
+    f.width = width; f.height = height;
+    f.src = '/gilgalrewardoutreach/' + p;
+
+    // ?theme=dark forces the dark palette inside the frame. Same origin, so
+    // the attribute can be set directly -- this is how dark mode gets a real
+    // visual check without depending on the OS preference.
+    var theme = q.get('theme');
+    if (theme) {
+      f.addEventListener('load', function () {
+        try { f.contentDocument.documentElement.setAttribute('data-theme', theme); }
+        catch (e) { /* ignore */ }
+      });
+    }
+
+    fig.appendChild(f);
+    out.appendChild(fig);
+  });
+</script>

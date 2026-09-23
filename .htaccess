@@ -1,0 +1,44 @@
+ErrorDocument 404 /gilgalrewardoutreach/404.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Friendly alias so /home and / both reach the homepage.
+  RewriteRule ^home/?$ index.php [L]
+
+  # SEO endpoints served from their conventional dot-extension paths.
+  RewriteRule ^robots\.txt$  robots.php  [L]
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+  # Clean URLs: serve <path>.php when <path> is requested with no extension.
+  # The original .php URLs keep working -- nothing is redirected away, so any
+  # existing link or bookmark stays valid.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}\.php -f
+  RewriteRule ^(.*)$ $1.php [L]
+</IfModule>
+
+# Never serve the schema, notes or local config over HTTP.
+<FilesMatch "\.(sql|md|ini|log)$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_dir.c>
+  DirectoryIndex index.php
+</IfModule>
+
+# Uploaded files are content, never executable.
+<IfModule mod_rewrite.c>
+  RewriteRule ^assets/uploads/.*\.(php|phtml|phar|cgi|pl)$ - [F,L]
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css            "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/svg+xml       "access plus 30 days"
+  ExpiresByType image/jpeg          "access plus 30 days"
+  ExpiresByType image/png           "access plus 30 days"
+  ExpiresByType image/webp          "access plus 30 days"
+</IfModule>
