@@ -13,7 +13,7 @@
 :root {
   --ink:        #13241F;
   --ink-soft:   #3D554D;
-  --muted:      #6E837B;
+  --muted:      #5F726B;   /* 4.5:1 on white, cream and wash -- do not lighten */
 
   --brand:      #0E6E62;
   --brand-deep: #084A42;
@@ -174,8 +174,12 @@ li { margin-bottom: .4em; }
   background: var(--amber); border-radius: 2px; flex: none;
 }
 .eyebrow-center { justify-content: center; }
-.section-deep .eyebrow { color: var(--amber); }
-.section-deep .eyebrow::before { background: var(--amber); }
+.section-deep .eyebrow,
+.cta-band .eyebrow,
+.page-banner .eyebrow { color: var(--amber); }
+.section-deep .eyebrow::before,
+.cta-band .eyebrow::before,
+.page-banner .eyebrow::before { background: var(--amber); }
 
 .display   { font-size: clamp(2.5rem, 1.4rem + 4.6vw, 4.4rem); letter-spacing: -.03em; }
 .h-xl      { font-size: clamp(2rem, 1.3rem + 2.9vw, 3.15rem); letter-spacing: -.025em; }
@@ -333,7 +337,8 @@ li { margin-bottom: .4em; }
 }
 .brand-tag {
   font-size: .68rem; font-weight: 600; letter-spacing: .13em;
-  text-transform: uppercase; color: var(--brand-mid);
+  /* --brand-mid is a 3:1 colour; fine for strokes and borders, not for text. */
+  text-transform: uppercase; color: var(--brand);
 }
 
 .main-nav { display: flex; align-items: center; gap: .3rem; }
@@ -1022,8 +1027,11 @@ li { margin-bottom: .4em; }
 }
 .footer-grid {
   display: grid;
-  grid-template-columns: minmax(240px, 1.5fr) repeat(auto-fit, minmax(150px, 1fr));
-  gap: clamp(1.75rem, 4vw, 3rem);
+  /* Even columns with a realistic minimum. The previous 150px floor could not
+     hold an email address or the newsletter form, so they overlapped. */
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: clamp(1.75rem, 3vw, 2.5rem);
+  align-items: start;
 }
 .footer-brand .brand-name { color: #fff; }
 .footer-brand .brand-tag { color: var(--amber); }
@@ -1034,7 +1042,12 @@ li { margin-bottom: .4em; }
 .footer-links a { color: rgba(255, 255, 255, .72); text-decoration: none; font-size: .93rem; }
 .footer-links a:hover { color: #fff; text-decoration: underline; }
 
-.footer-contact { list-style: none; padding: 0; margin: 0; font-size: .93rem; }
+.footer-contact {
+  list-style: none; padding: 0; margin: 0; font-size: .93rem;
+  /* Addresses like hello@gilgalrewardoutreach.org have no natural break point
+     and were spilling over the newsletter column beside them. */
+  overflow-wrap: anywhere;
+}
 .footer-contact li { display: flex; gap: .6rem; margin-bottom: .7rem; align-items: flex-start; }
 .footer-contact .icon { width: 17px; height: 17px; color: var(--amber); flex: none; margin-top: .18rem; }
 .footer-contact a { color: rgba(255, 255, 255, .78); text-decoration: none; }
@@ -1162,6 +1175,38 @@ li { margin-bottom: .4em; }
   .site-header, .site-footer, .wa-fab, .to-top, .nav-toggle, .filter-bar { display: none !important; }
   body { background: #fff; color: #000; }
   .card, .media-card { box-shadow: none; border: 1px solid #ccc; }
+}
+
+/* --- Text on an always-dark surface --------------------------------------- *
+ * These four panels are dark in BOTH themes.
+ *
+ * Rather than override each text class inside them one at a time -- which is
+ * exactly how .lede ended up dark-on-dark on the call-to-action band, because
+ * it was overridden for .section-deep and .page-banner but not .cta-band --
+ * they redefine the tokens. Every descendant reading --ink, --ink-soft or
+ * --muted then becomes readable automatically, including any class added later.
+ *
+ * Anything placed inside one of these that brings its own LIGHT background
+ * must restore the tokens with .on-light.
+ * -------------------------------------------------------------------------- */
+.page-banner,
+.cta-band,
+.section-deep,
+.site-footer {
+  --ink:         #FFFFFF;
+  --ink-soft:    rgba(255, 255, 255, .86);
+  --muted:       rgba(255, 255, 255, .70);
+  --line:        rgba(255, 255, 255, .16);
+  --line-strong: rgba(255, 255, 255, .30);
+}
+
+/* Escape hatch for a light-background component inside a dark panel. */
+.on-light {
+  --ink:         #13241F;
+  --ink-soft:    #3D554D;
+  --muted:       #5F726B;
+  --line:        rgba(19, 36, 31, .10);
+  --line-strong: rgba(19, 36, 31, .18);
 }
 
 /* --- Utilities ----------------------------------------------------------- *
