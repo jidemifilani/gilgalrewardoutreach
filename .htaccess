@@ -28,6 +28,14 @@ ErrorDocument 404 /gilgalrewardoutreach/404.php
   DirectoryIndex index.php
 </IfModule>
 
+# No directory listings anywhere.
+Options -Indexes
+
+# Application internals are only ever reached through include(), never by URL.
+# Without this, /includes/db.php runs on its own and its failure message names
+# the database.
+RedirectMatch 404 ^/(includes|config|cron|database|backups)(/|$)
+
 # Uploaded files are content, never executable.
 <IfModule mod_rewrite.c>
   RewriteRule ^assets/uploads/.*\.(php|phtml|phar|cgi|pl)$ - [F,L]
