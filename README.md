@@ -20,8 +20,18 @@ PHP 8 + MySQL, no framework. Runs on XAMPP at `http://localhost/gilgalrewardoutr
    placeholder content, so it is safe to re-run whenever you want a clean slate.
 
    To take the v2 additions into an **existing** database without wiping it, run
-   `mysql -u root gilgalrewardoutreach < database/upgrade_v2.sql` instead. It is additive
-   and safe to re-run.
+   `mysql -u root gilgalrewardoutreach < database/upgrade_v2.sql`, then
+   `php database/migrate.php`. The SQL file adds the new tables and settings; the PHP
+   script adds the admin_users columns and indexes that came with it.
+
+   Those live in a separate PHP script rather than more SQL because MySQL 8.0 rejects
+   `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` as a syntax error — it is a MariaDB
+   extension, and this project's local dev database is MariaDB. Found the hard way on
+   first production deploy: on a real MySQL 8.0 host it silently truncated the rest of the
+   install script, which meant `faqs`/`milestones`/`stories` never got seeded and admin
+   login 500'd (it writes to `last_login_ip`, one of the columns that never got added).
+   `migrate.php` checks `information_schema` before every write instead, which works
+   identically on both engines and is safe to run any number of times.
 
 3. Copy `config/config.example.php` to `config/config.php` if it is missing, and
    check the values there (database credentials, `BASE_URL`, SMTP).

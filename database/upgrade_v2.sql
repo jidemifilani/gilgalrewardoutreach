@@ -79,20 +79,20 @@ CREATE TABLE IF NOT EXISTS milestones (
   INDEX idx_milestone_year (year)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- --- Admin accounts: 2FA and password reset -------------------------------
-ALTER TABLE admin_users
-  ADD COLUMN IF NOT EXISTS totp_secret     VARCHAR(64) NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS totp_enabled    TINYINT(1) NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS reset_token     VARCHAR(64) NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS reset_expires   DATETIME NULL,
-  ADD COLUMN IF NOT EXISTS last_login_ip   VARCHAR(60) NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS is_active       TINYINT(1) NOT NULL DEFAULT 1;
-
--- --- Helpful indexes on existing tables -----------------------------------
-ALTER TABLE gallery_items    ADD INDEX IF NOT EXISTS idx_gallery_state (state);
-ALTER TABLE outreaches       ADD INDEX IF NOT EXISTS idx_outreach_state (state);
-ALTER TABLE audit_log        ADD INDEX IF NOT EXISTS idx_audit_created (created_at);
-ALTER TABLE volunteers       ADD INDEX IF NOT EXISTS idx_volunteers_email (email);
+-- --- Admin accounts: 2FA/reset columns, and performance indexes -----------
+--
+-- These do NOT run from this SQL file. "ADD COLUMN IF NOT EXISTS" and
+-- "ADD INDEX IF NOT EXISTS" are a MariaDB extension that plain MySQL 8.0
+-- rejects as a syntax error -- confirmed the hard way on a real MySQL 8.0.46
+-- production host, where it silently aborted the rest of this script
+-- (everything below never ran) and broke admin login until repaired.
+--
+-- Run this instead, which checks information_schema first and works
+-- identically on MySQL and MariaDB:
+--
+--   php database/migrate.php
+--
+-- It is idempotent -- safe to run before, after, or instead of this file.
 
 -- --- New settings ----------------------------------------------------------
 INSERT INTO site_settings (setting_key, setting_value) VALUES

@@ -23,6 +23,12 @@ CREATE TABLE admin_users (
   failed_attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
   locked_until    DATETIME NULL,
   last_login_at   DATETIME NULL,
+  last_login_ip   VARCHAR(60) NOT NULL DEFAULT '',
+  is_active       TINYINT(1) NOT NULL DEFAULT 1,
+  totp_secret     VARCHAR(64) NOT NULL DEFAULT '',
+  totp_enabled    TINYINT(1) NOT NULL DEFAULT 0,
+  reset_token     VARCHAR(64) NOT NULL DEFAULT '',
+  reset_expires   DATETIME NULL,
   created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -76,6 +82,7 @@ CREATE TABLE outreaches (
   sort_order    INT NOT NULL DEFAULT 0,
   created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_outreach_date (outreach_date),
+  INDEX idx_outreach_state (state),
   CONSTRAINT fk_outreach_programme FOREIGN KEY (programme_id)
     REFERENCES programmes(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -103,6 +110,7 @@ CREATE TABLE gallery_items (
   sort_order  INT NOT NULL DEFAULT 0,
   created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_gallery_category (category),
+  INDEX idx_gallery_state (state),
   CONSTRAINT fk_gallery_outreach FOREIGN KEY (outreach_id)
     REFERENCES outreaches(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -150,6 +158,7 @@ CREATE TABLE volunteers (
   status       ENUM('new','contacted','active','archived') NOT NULL DEFAULT 'new',
   created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_volunteers_status (status),
+  INDEX idx_volunteers_email (email),
   INDEX idx_volunteers_state (state)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -202,7 +211,8 @@ CREATE TABLE audit_log (
   action     VARCHAR(80) NOT NULL,
   detail     VARCHAR(400) NOT NULL DEFAULT '',
   ip         VARCHAR(60) NOT NULL DEFAULT '',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_audit_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --- Per-IP rate limiting for public forms --------------------------------
@@ -496,20 +506,10 @@ CREATE TABLE IF NOT EXISTS milestones (
   INDEX idx_milestone_year (year)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- --- Admin accounts: 2FA and password reset -------------------------------
-ALTER TABLE admin_users
-  ADD COLUMN IF NOT EXISTS totp_secret     VARCHAR(64) NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS totp_enabled    TINYINT(1) NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS reset_token     VARCHAR(64) NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS reset_expires   DATETIME NULL,
-  ADD COLUMN IF NOT EXISTS last_login_ip   VARCHAR(60) NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS is_active       TINYINT(1) NOT NULL DEFAULT 1;
-
--- --- Helpful indexes on existing tables -----------------------------------
-ALTER TABLE gallery_items    ADD INDEX IF NOT EXISTS idx_gallery_state (state);
-ALTER TABLE outreaches       ADD INDEX IF NOT EXISTS idx_outreach_state (state);
-ALTER TABLE audit_log        ADD INDEX IF NOT EXISTS idx_audit_created (created_at);
-ALTER TABLE volunteers       ADD INDEX IF NOT EXISTS idx_volunteers_email (email);
+-- Admin 2FA/reset columns and the v2 performance indexes are declared
+-- directly on their tables above. A fresh install (this file always drops
+-- and recreates the database) never needs the ALTER TABLE migration path
+-- that upgrade_v2.sql uses for an existing pre-v2 database.
 
 -- --- New settings ----------------------------------------------------------
 INSERT INTO site_settings (setting_key, setting_value) VALUES
