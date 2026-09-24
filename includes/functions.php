@@ -29,7 +29,18 @@ function start_session_if_needed(): void
 function base_url(string $path = ''): string
 {
     $path  = ltrim($path, '/');
-    $query = null;
+    $query    = null;
+    $fragment = null;
+
+    // The fragment has to come off FIRST: "volunteer.php#register" does not
+    // end in ".php", so the extension-strip below silently failed to fire
+    // whenever a caller appended a #fragment -- every "Become a volunteer"
+    // link sitewide was rendering the raw volunteer.php path instead of the
+    // clean /volunteer one.
+    if (($hPos = strpos($path, '#')) !== false) {
+        $fragment = substr($path, $hPos + 1);
+        $path     = substr($path, 0, $hPos);
+    }
 
     if (($qPos = strpos($path, '?')) !== false) {
         $query = substr($path, $qPos + 1);
@@ -45,6 +56,9 @@ function base_url(string $path = ''): string
     $url = BASE_URL . '/' . $path;
     if ($query !== null && $query !== '') {
         $url .= '?' . $query;
+    }
+    if ($fragment !== null && $fragment !== '') {
+        $url .= '#' . $fragment;
     }
     return $url;
 }
