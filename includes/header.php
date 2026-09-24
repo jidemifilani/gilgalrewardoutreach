@@ -67,7 +67,7 @@ $themeToggle  = theme_toggle_allowed($pdo);
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="<?= e(asset_url('css/style.css')) ?>?v=3">
+<link rel="stylesheet" href="<?= e(asset_url('css/style.css')) ?>?v=4">
 <meta name="theme-color" content="<?= e($brandColor) ?>">
 
 <?= theme_style_block($pdo) ?>

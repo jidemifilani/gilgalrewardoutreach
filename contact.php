@@ -133,9 +133,9 @@ require __DIR__ . '/includes/header.php';
               <span class="contact-method-icon"><?= icon('mail') ?></span>
               <span>
                 <span class="contact-method-label">Email us</span>
-                <span class="contact-method-value"><?= e($email) ?></span>
+                <span class="contact-method-value"><?= email_html($email) ?></span>
                 <?php if ($volEmail && $volEmail !== $email): ?>
-                  <span class="u-fs-sm text-muted">Volunteering: <?= e($volEmail) ?></span>
+                  <span class="u-fs-sm text-muted">Volunteering: <?= email_html($volEmail) ?></span>
                 <?php endif; ?>
               </span>
             </a>

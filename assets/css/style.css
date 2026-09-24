@@ -1011,27 +1011,62 @@ li { margin-bottom: .4em; }
   font-size: .92rem; font-weight: 600; color: var(--ink-soft);
 }
 
-/* --- Footer -------------------------------------------------------------- */
+/* --- Footer -------------------------------------------------------------- *
+ * A dedicated newsletter band sits above the link columns, full width, so
+ * the sign-up form gets real room instead of being squeezed into a 210px
+ * grid column. The link columns below are a fixed 4-up template rather than
+ * auto-fit: "Explore" now lists only the 5 top-level nav items (it used to
+ * flatten every dropdown sub-page into one 10-item column, towering over its
+ * 3-4 item neighbours), so a predictable column count reads as designed
+ * rather than accidental.
+ * -------------------------------------------------------------------------- */
 .site-footer {
   position: relative;
   background: var(--footer-bg);
   color: rgba(255, 255, 255, .7);
-  padding-block: clamp(3.5rem, 7vw, 5rem) 2rem;
+  padding-block: 0 2rem;
   margin-top: 0;
 }
+
 .site-footer h4 {
+  display: flex; align-items: center; gap: .55rem;
   color: #fff; font-family: var(--body);
-  font-size: .82rem; font-weight: 700;
+  font-size: .78rem; font-weight: 700;
   letter-spacing: .14em; text-transform: uppercase;
   margin-bottom: 1.1rem;
 }
+/* Same amber-dash accent as .eyebrow elsewhere on the site, so the footer
+   reads as part of the same design system rather than a bolted-on template. */
+.site-footer h4::before {
+  content: ""; width: 20px; height: 2px;
+  background: var(--amber); border-radius: 2px; flex: none;
+}
+
+.footer-newsletter {
+  background: rgba(255, 255, 255, .05);
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  padding-block: clamp(2rem, 4vw, 2.75rem);
+}
+.footer-newsletter-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.25rem, 3vw, 3rem);
+}
+.footer-newsletter-inner h4 { margin-bottom: .4rem; }
+.footer-newsletter-inner p { font-size: .93rem; max-width: 46ch; }
+.footer-newsletter .newsletter-form { margin-top: 0; justify-content: flex-end; }
+.newsletter-note {
+  font-size: .82rem; margin: .9rem 0 0; color: rgba(255, 255, 255, .55);
+  text-align: right;
+}
+
 .footer-grid {
   display: grid;
-  /* Even columns with a realistic minimum. The previous 150px floor could not
-     hold an email address or the newsletter form, so they overlapped. */
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: 1.3fr 1fr 1fr 1fr;
   gap: clamp(1.75rem, 3vw, 2.5rem);
   align-items: start;
+  padding-top: clamp(2.75rem, 5vw, 3.5rem);
 }
 .footer-brand .brand-name { color: #fff; }
 .footer-brand .brand-tag { color: var(--amber); }
@@ -1150,6 +1185,9 @@ li { margin-bottom: .4em; }
   .people-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
   .footer-grid { grid-template-columns: 1fr; }
+  .footer-newsletter-inner { grid-template-columns: 1fr; text-align: left; }
+  .footer-newsletter .newsletter-form { justify-content: flex-start; }
+  .newsletter-note { text-align: left; }
   .footer-bottom { justify-content: flex-start; }
   .cta-band { border-radius: var(--r-lg); }
 }
@@ -1503,20 +1541,23 @@ li { margin-bottom: .4em; }
 .pager-step .icon { width: 16px; height: 16px; }
 .pager-step[rel="prev"] .icon { transform: rotate(180deg); }
 
-/* --- Newsletter ---------------------------------------------------------- */
+/* --- Newsletter form ------------------------------------------------------ *
+ * Sizing, colours and the .newsletter-note override for this context live
+ * with .footer-newsletter above -- this block is just the reusable input+
+ * button pairing so the same markup could sit elsewhere in a light context.
+ * -------------------------------------------------------------------------- */
 .newsletter-form { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
 .newsletter-form input[type="email"] {
-  flex: 1 1 200px; min-width: 0;
+  flex: 1 1 240px; min-width: 0;
   font-family: var(--body); font-size: .93rem;
   color: #fff; background: rgba(255, 255, 255, .1);
   border: 1px solid rgba(255, 255, 255, .22);
-  border-radius: 100px; padding: .7rem 1.1rem;
+  border-radius: 100px; padding: .8rem 1.2rem;
 }
 .newsletter-form input[type="email"]::placeholder { color: rgba(255, 255, 255, .55); }
 .newsletter-form input[type="email"]:focus {
   outline: none; border-color: var(--amber); background: rgba(255, 255, 255, .16);
 }
-.newsletter-note { font-size: .85rem; margin-top: .7rem; color: rgba(255, 255, 255, .6); }
 
 /* --- Cookie notice ------------------------------------------------------- */
 .cookie-note {
@@ -1671,6 +1712,11 @@ mark { background: var(--mark-bg); color: inherit; padding: 0 .15em; border-radi
   body { padding-bottom: 68px; }
   .wa-fab { bottom: calc(68px + 1rem); }
   .to-top { bottom: calc(68px + 4.5rem); }
+}
+
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-brand { grid-column: 1 / -1; }
 }
 
 @media (max-width: 960px) {

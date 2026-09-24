@@ -16,6 +16,32 @@ $addr2     = get_setting($pdo, 'address_city', '');
 </main>
 
 <footer class="site-footer">
+
+  <div class="footer-newsletter">
+    <div class="container footer-newsletter-inner">
+      <div>
+        <h4>Our monthly note</h4>
+        <p class="u-m0"><?= e(get_setting($pdo, 'newsletter_note', '')) ?></p>
+      </div>
+
+      <form class="newsletter-form" method="post" action="<?= e(base_url('subscribe.php')) ?>" data-enhance>
+        <?= csrf_field() ?>
+        <?= honeypot_field() ?>
+        <input type="hidden" name="source" value="footer">
+        <input type="hidden" name="return_to" value="<?= e(strtok($_SERVER['REQUEST_URI'] ?? '/', '?')) ?>">
+
+        <label class="sr-only" for="newsletterEmail">Your email address</label>
+        <input type="email" id="newsletterEmail" name="email" required
+               maxlength="190" autocomplete="email" placeholder="you@example.com">
+
+        <button class="btn btn-accent" type="submit" data-busy="Adding...">
+          Subscribe
+        </button>
+      </form>
+    </div>
+    <p class="container newsletter-note">No appeals for money. Unsubscribe in one click.</p>
+  </div>
+
   <div class="container">
     <div class="footer-grid">
 
@@ -56,8 +82,8 @@ $addr2     = get_setting($pdo, 'address_city', '');
       <div>
         <h4>Explore</h4>
         <ul class="footer-links">
-          <?php foreach (nav_flat() as $path => $label): ?>
-            <li><a href="<?= e(base_url($path)) ?>"><?= e($label) ?></a></li>
+          <?php foreach (nav_items() as $item): ?>
+            <li><a href="<?= e(base_url($item['path'])) ?>"><?= e($item['label']) ?></a></li>
           <?php endforeach; ?>
         </ul>
       </div>
@@ -80,7 +106,7 @@ $addr2     = get_setting($pdo, 'address_city', '');
             <li><?= icon('phone') ?><a href="tel:<?= e(preg_replace('/\s+/', '', $phone)) ?>"><?= e($phone) ?></a></li>
           <?php endif; ?>
           <?php if ($email): ?>
-            <li><?= icon('mail') ?><a href="mailto:<?= e($email) ?>"><?= e($email) ?></a></li>
+            <li><?= icon('mail') ?><a href="mailto:<?= e($email) ?>"><?= email_html($email) ?></a></li>
           <?php endif; ?>
           <?php if ($addr1 || $addr2): ?>
             <li><?= icon('pin') ?><span><?= e($addr1) ?><?= $addr1 && $addr2 ? '<br>' : '' ?><?= e($addr2) ?></span></li>
@@ -93,28 +119,6 @@ $addr2     = get_setting($pdo, 'address_city', '');
         <?php endif; ?>
       </div>
 
-      <div>
-        <h4>Our monthly note</h4>
-        <p class="u-fs-sm u-m0"><?= e(get_setting($pdo, 'newsletter_note', '')) ?></p>
-
-        <form class="newsletter-form" method="post" action="<?= e(base_url('subscribe.php')) ?>" data-enhance>
-          <?= csrf_field() ?>
-          <?= honeypot_field() ?>
-          <input type="hidden" name="source" value="footer">
-          <input type="hidden" name="return_to" value="<?= e(strtok($_SERVER['REQUEST_URI'] ?? '/', '?')) ?>">
-
-          <label class="sr-only" for="newsletterEmail">Your email address</label>
-          <input type="email" id="newsletterEmail" name="email" required
-                 maxlength="190" autocomplete="email" placeholder="you@example.com">
-
-          <button class="btn btn-accent btn-sm" type="submit" data-busy="Adding...">
-            Subscribe
-          </button>
-        </form>
-
-        <p class="newsletter-note">No appeals for money. Unsubscribe in one click.</p>
-      </div>
-
     </div>
 
     <div class="footer-bottom">
@@ -123,8 +127,7 @@ $addr2     = get_setting($pdo, 'address_city', '');
         <a href="<?= e(base_url('volunteer.php#register')) ?>">Volunteer</a> &middot;
         <a href="<?= e(base_url('support.php')) ?>">Support us</a> &middot;
         <a href="<?= e(base_url('privacy.php')) ?>">Privacy</a> &middot;
-        <a href="<?= e(base_url('terms.php')) ?>">Terms</a> &middot;
-        <a href="<?= e(base_url('admin/')) ?>">Admin</a>
+        <a href="<?= e(base_url('terms.php')) ?>">Terms</a>
       </p>
     </div>
   </div>

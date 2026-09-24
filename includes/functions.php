@@ -135,7 +135,35 @@ function excerpt(?string $text, int $limit = 160): string
     if (mb_strlen($text) <= $limit) {
         return $text;
     }
-    return rtrim(mb_substr($text, 0, $limit), " ,.;:-") . '...';
+
+    $cut = mb_substr($text, 0, $limit);
+
+    // Back up to the last whole word instead of slicing through one --
+    // this used to render as "...through consistent, locally-le...".
+    $lastSpace = mb_strrpos($cut, ' ');
+    if ($lastSpace !== false && $lastSpace > $limit * 0.6) {
+        $cut = mb_substr($cut, 0, $lastSpace);
+    }
+
+    return rtrim($cut, " ,.;:-") . '...';
+}
+
+/**
+ * An email address as HTML, with a soft break point after the "@".
+ *
+ * A bare long address like "hello@gilgalrewardoutreach.org" in a narrow
+ * footer/sidebar column has no natural break point, so the browser's own
+ * fallback wrap (needed to stop it overflowing the column at all) can leave
+ * a single orphaned character on its own line -- "...outreach.or" / "g".
+ * A <wbr> after "@" gives it a sensible place to break first.
+ */
+function email_html(string $email): string
+{
+    $at = strpos($email, '@');
+    if ($at === false) {
+        return e($email);
+    }
+    return e(substr($email, 0, $at + 1)) . '<wbr>' . e(substr($email, $at + 1));
 }
 
 function slugify(string $text): string
